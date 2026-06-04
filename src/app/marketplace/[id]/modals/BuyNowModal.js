@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAccount } from "wagmi";
 import CheckoutReceiptModal from "../../../../../components/modals/CheckoutReceiptModal";
 import ConnectWalletModal from "./ConnectWalletModal";
+import Web3TransactionFallback from "@/components/web3/Web3TransactionFallback";
 import TransactionStatusPanel from "@/components/transactions/TransactionStatusPanel";
 import { useCreatePurchase } from "@/hooks/api/usePurchases";
 import { ACCEPTED_ASSET, getExplorerTxUrl } from "@/lib/config/chain";
@@ -113,7 +114,7 @@ export default function BuyNowModal({
   const handleClose = () => {
     resetCheckout();
     onClose();
-  };
+  }
 
   const handleDownload = async () => {
     if (!materialId || !address) return;
@@ -244,7 +245,7 @@ export default function BuyNowModal({
         retryable: true,
       });
     }
-  };
+  }
 
   const handleRetry = () => {
     setPurchaseStatus("idle");

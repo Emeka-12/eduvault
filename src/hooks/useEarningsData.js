@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 
 /**
  * Generate mock data points for the requested interval.
@@ -37,6 +37,4 @@ export default function useEarningsData(interval) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(mock);
   }, [interval]);
-
-  return data;
 }
