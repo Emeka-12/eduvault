@@ -96,9 +96,6 @@ export default function CreatorProfilePage() {
   // Determine wallet status
   const walletStatus = creatorProfile.walletAddress ? 'linked' : 'not linked';
 
-  // Get material count (from filteredMaterials)
-  const materialCount = filteredMaterials.length;
-
   // Handle profile update
   const handleUpdateProfile = async () => {
     setIsUpdating(true);
@@ -188,6 +185,8 @@ export default function CreatorProfilePage() {
       if (sortBy === 'Highest Rated') return Number(b.rating || 4.8) - Number(a.rating || 4.8);
       return Number(b.likes || 0) - Number(a.likes || 0); // Popular
     });
+
+  const materialCount = filteredMaterials.length;
 
   const [subjects, setSubjects] = useState(['All']);
   const [subjectsLoading, setSubjectsLoading] = useState(true);
@@ -355,6 +354,22 @@ export default function CreatorProfilePage() {
             </div>
           </div>
         </motion.section>
+
+        {/* Creator Stats Summary */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: 'Published', value: creatorMaterials.length, suffix: 'resources', color: 'blue' },
+            { label: 'Avg Rating', value: creatorMaterials.length > 0 ? (creatorMaterials.reduce((sum, m) => sum + Number(m.rating || 4.8), 0) / creatorMaterials.length).toFixed(1) : '—', suffix: '/ 5.0', color: 'amber' },
+            { label: 'Total Likes', value: creatorMaterials.reduce((sum, m) => sum + Number(m.likes || 0), 0), suffix: 'likes', color: 'rose' },
+            { label: 'Profile', value: `${completenessPercentage}%`, suffix: 'complete', color: 'green' },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm text-center">
+              <p className={`text-2xl font-extrabold text-${stat.color}-600 dark:text-${stat.color}-400`}>{stat.value}</p>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">{stat.label}</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">{stat.suffix}</p>
+            </div>
+          ))}
+        </div>
 
         {/* Tab Selection Navbar */}
         <nav aria-label="Creator profile tabs" className="flex border-b border-slate-200 dark:border-slate-800 mb-8 gap-6 md:gap-8 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-xs max-w-sm">

@@ -15,6 +15,7 @@ import {
 	FaFileUpload,
 	FaWallet,
 	FaRocket,
+	FaGraduationCap,
 } from "react-icons/fa";
 
 export default function Sidebar() {
@@ -23,6 +24,7 @@ export default function Sidebar() {
 	const menuItems = [
 		{ icon: <FaRocket />, label: "Onboarding", href: "/onboarding" },
 		{ icon: <FaTachometerAlt />, label: "Dashboard", href: "/dashboard" },
+		{ icon: <FaGraduationCap />, label: "Learner Hub", href: "/dashboard/learner" },
 		{ icon: <FaShoppingBag />, label: "Market", href: "/dashboard/market" },
 		{ icon: <FaUpload />, label: "Upload Material", href: "/dashboard/upload" },
 		{ icon: <FaFileUpload />, label: "Bulk Upload", href: "/dashboard/bulk-upload" },

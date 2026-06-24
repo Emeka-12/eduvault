@@ -26,8 +26,9 @@ const STEPS = [
   { title: "Welcome", icon: <FaRocket />, num: 1 },
   { title: "Profile Setup", icon: <FaUser />, num: 2 },
   { title: "Wallet Connection", icon: <FaWallet />, num: 3 },
-  { title: "Creator Attribution", icon: <FaShieldAlt />, num: 4 },
-  { title: "Complete", icon: <FaCheckCircle />, num: 5 },
+  { title: "Publishing Guide", icon: <FaUpload />, num: 4 },
+  { title: "Creator Attribution", icon: <FaShieldAlt />, num: 5 },
+  { title: "Complete", icon: <FaCheckCircle />, num: 6 },
 ];
 
 const containerVariants = {
@@ -64,7 +65,7 @@ export default function OnboardingPage() {
       }
       setFormErrors({});
     }
-    if (step < 4) setStep((s) => s + 1);
+    if (step < 5) setStep((s) => s + 1);
   };
 
   const handleBack = () => {
@@ -79,7 +80,7 @@ export default function OnboardingPage() {
       country: formData.country.trim(),
       walletAddress: address,
     });
-    setStep(4);
+    setStep(5);
   };
 
   const handleInputChange = (e) => {
@@ -353,6 +354,65 @@ export default function OnboardingPage() {
 
       case 3:
         return (
+          <div className="space-y-6 max-w-lg mx-auto">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 text-2xl mx-auto">
+                <FaUpload />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                Publishing Your Resources
+              </h2>
+              <p className="text-gray-500 leading-relaxed">
+                Learn how to publish and manage your educational materials on EduVault.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  step: "1",
+                  title: "Upload Your Material",
+                  desc: "Go to your Dashboard and click \"Upload Material.\" Add a title, description, subject, and attach your file (PDF, DOCX, or PPTX up to 50MB).",
+                },
+                {
+                  step: "2",
+                  title: "Set Your Price",
+                  desc: "Choose a price in XLM for your material, or make it free. You receive payments directly to your connected Stellar wallet.",
+                },
+                {
+                  step: "3",
+                  title: "Publish & Share",
+                  desc: "Once published, your resource appears on the Marketplace. Share the link with students and track performance from your Analytics dashboard.",
+                },
+                {
+                  step: "4",
+                  title: "Manage Listings",
+                  desc: "Edit titles, update prices, or unpublish materials anytime from the \"My Materials\" section in your dashboard.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="flex items-start gap-4 bg-white/80 border border-gray-100 rounded-xl p-4 shadow-sm"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 text-sm">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
           <div className="space-y-6 max-w-lg mx-auto text-center">
             <div className="space-y-2">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 text-2xl mx-auto">
@@ -450,7 +510,7 @@ export default function OnboardingPage() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6 max-w-lg mx-auto text-center">
             <div className="space-y-3">
@@ -526,7 +586,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const isLastStep = step === 4;
+  const isLastStep = step === 5;
   const isFirstStep = step === 0;
   const canProceed =
     step === 2 ? isConnected : step === 1 ? formData.fullName.trim().length > 0 : true;
@@ -538,7 +598,7 @@ export default function OnboardingPage() {
       <main className="pt-28 pb-16 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Progress indicator */}
-          <div className="mb-10" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={5} aria-label={`Step ${step + 1} of 5: ${STEPS[step].title}`}>
+          <div className="mb-10" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={6} aria-label={`Step ${step + 1} of 6: ${STEPS[step].title}`}>
             <div className="flex items-center justify-between mb-3">
               {STEPS.map((s, i) => (
                 <div key={i} className="flex items-center">
@@ -587,7 +647,7 @@ export default function OnboardingPage() {
               ))}
             </div>
             <p className="text-center text-sm font-medium text-gray-500">
-              Step {step + 1} of 5 &mdash; {STEPS[step].title}
+              Step {step + 1} of 6 &mdash; {STEPS[step].title}
             </p>
           </div>
 
@@ -627,19 +687,19 @@ export default function OnboardingPage() {
                 </button>
 
                 <button
-                  onClick={step === 3 ? handleComplete : handleNext}
+                  onClick={step === 4 ? handleComplete : handleNext}
                   disabled={
                     (step === 2 && !isConnected) ||
-                    (step === 3 && createProfile.isPending)
+                    (step === 4 && createProfile.isPending)
                   }
                   className={`inline-flex items-center gap-1.5 px-6 py-3 rounded-xl text-sm font-semibold transition shadow-sm ${
-                    (step === 2 && !isConnected) || (step === 3 && createProfile.isPending)
+                    (step === 2 && !isConnected) || (step === 4 && createProfile.isPending)
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
-                  aria-label={step === 3 ? "Complete onboarding" : "Go to next step"}
+                  aria-label={step === 4 ? "Complete onboarding" : "Go to next step"}
                 >
-                  {step === 3 ? (
+                  {step === 4 ? (
                     createProfile.isPending ? (
                       <>
                         <FaSpinner className="animate-spin w-3.5 h-3.5" />

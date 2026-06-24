@@ -517,7 +517,7 @@ export default function MarketPage() {
 
 											<Link
 												href={`/marketplace/${materialId}`}
-												className="relative w-full h-28 bg-gray-100 overflow-hidden block"
+												className="relative w-full h-36 bg-gray-100 overflow-hidden block"
 											>
 												<Image
 													src={getPreviewImage(
@@ -529,20 +529,25 @@ export default function MarketPage() {
 													fill
 													className="object-cover group-hover:scale-105 transition-transform duration-500"
 												/>
+												{material.subject && (
+													<span className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-gray-700 font-semibold text-[10px] px-2 py-0.5 rounded-md border border-gray-200 shadow-sm">
+														{material.subject}
+													</span>
+												)}
 											</Link>
 
-											<div className="p-4 flex-1 flex flex-col">
+											<div className="p-4 flex-1 flex flex-col gap-2">
 												<Link
 													href={`/marketplace/${materialId}`}
 												>
-													<h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-2">
+													<h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug hover:text-blue-600 transition-colors">
 														{
 															material.title
 														}
 													</h3>
 												</Link>
 
-												<p className="text-xs text-gray-500 mb-1">
+												<p className="text-xs text-gray-500">
 													by{" "}
 													<Link
 														href={`/creator/${creatorAddress}`}
@@ -553,119 +558,92 @@ export default function MarketPage() {
 													</Link>
 												</p>
 
-												<p className="text-xs text-gray-500 mb-3 line-clamp-2">
+												<p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
 													{material.shortSummary ||
 														material.description ||
 														"No description"}
 												</p>
 
-												<div className="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
-													<div className="flex items-center text-xs text-gray-500 gap-3">
-														<span className="flex items-center gap-1">
-															{getFileIcon(
-																material.fileType
-															)}
-
-															<span className="uppercase">
-																{material.fileType ||
-																	"pdf"}
-															</span>
-														</span>
-
+												<div className="mt-auto pt-3 border-t border-gray-100 space-y-3">
+													<div className="flex justify-between items-center">
 														<div className="flex items-center gap-1">
-															<FaHeart className="text-gray-400" />
-
-															<span>
-																{material.likes ||
-																	0}
+															<FaStar className="text-yellow-400 w-3.5 h-3.5" />
+															<span className="text-xs font-semibold text-gray-700">
+																{material.rating || "4.8"}
 															</span>
 														</div>
 
-														{material.pages && (
-															<div className="flex items-center gap-1">
-																<FaRegClock className="text-gray-400" />
+														<div className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg text-sm font-bold border border-blue-100">
+															{material.price}
+															<span className="text-[10px] font-medium text-blue-500 ml-1">
+																XLM
+															</span>
+														</div>
+													</div>
 
-																<span>
-																	{
-																		material.pages
-																	}{" "}
-																	pgs
+													<div className="flex items-center justify-between text-[11px] text-gray-400">
+														<div className="flex items-center gap-3">
+															<span className="flex items-center gap-1">
+																{getFileIcon(material.fileType)}
+																<span className="uppercase font-medium">
+																	{material.fileType || "pdf"}
 																</span>
-															</div>
-														)}
+															</span>
+															<span className="flex items-center gap-1">
+																<FaHeart className="w-3 h-3" />
+																{material.likes || 0}
+															</span>
+															{material.pages && (
+																<span className="flex items-center gap-1">
+																	<FaRegClock className="w-3 h-3" />
+																	{material.pages} pgs
+																</span>
+															)}
+														</div>
 													</div>
 
-													<div className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-sm font-bold border border-blue-100">
-														{
-															material.price
-														}
+													<div className="grid grid-cols-2 gap-2">
+														<button
+															onClick={() =>
+																addToComparison(
+																	material
+																)
+															}
+															className={`flex items-center justify-center gap-1 py-2 rounded-lg font-bold text-[11px] border transition-all focus-visible:ring-2 focus-visible:ring-blue-500 ${
+																isAlreadyInComp
+																	? "bg-amber-500 border-amber-600 text-white"
+																	: "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+															}`}
+														>
+															<FaExchangeAlt className="w-3 h-3" />
+															{isAlreadyInComp
+																? "Contrasted"
+																: "Contrast"}
+														</button>
 
-														<span className="text-[10px] font-medium text-blue-500 ml-1">
-															XLM
-														</span>
+														<button
+															onClick={() =>
+																addToCart(
+																	material
+																)
+															}
+															className={`flex items-center justify-center gap-1 py-2 rounded-lg font-bold text-[11px] border transition-all focus-visible:ring-2 focus-visible:ring-blue-500 ${
+																isAlreadyInCart
+																	? "bg-emerald-600 border-emerald-700 text-white"
+																	: "bg-blue-600 hover:bg-blue-700 border-blue-700 text-white"
+															}`}
+														>
+															<FaShoppingCart className="w-3 h-3" />
+															{isAlreadyInCart
+																? "In Cart"
+																: "Add to Cart"}
+														</button>
 													</div>
-												</div>
-
-												<div className="mt-2 flex justify-between text-xs text-gray-500 pb-3 border-b border-gray-100">
-													<span>
-														{
-															material.subject
-														}
-													</span>
-
-													<span>
-														<FaStar className="inline text-yellow-500 mr-0.5" />
-
-														{material.rating ||
-															4.8}
-													</span>
-												</div>
-
-												<div className="grid grid-cols-2 gap-2 mt-3">
-													<button
-														onClick={() =>
-															addToComparison(
-																material
-															)
-														}
-														className={`flex items-center justify-center gap-1 py-1.5 rounded-lg font-bold text-[10px] border focus-visible:ring-2 focus-visible:ring-blue-500 ${
-															isAlreadyInComp
-																? "bg-amber-500 border-amber-600 text-white"
-																: "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-														}`}
-													>
-														<FaExchangeAlt className="w-2.5 h-2.5" />
-
-														{isAlreadyInComp
-															? "Contrasted"
-															: "Contrast"}
-													</button>
-
-													<button
-														onClick={() =>
-															addToCart(
-																material
-															)
-														}
-														className={`flex items-center justify-center gap-1 py-1.5 rounded-lg font-bold text-[10px] border focus-visible:ring-2 focus-visible:ring-blue-500 ${
-															isAlreadyInCart
-																? "bg-emerald-600 border-emerald-700 text-white"
-																: "bg-blue-600 hover:bg-blue-700 border-blue-700 text-white"
-														}`}
-													>
-														<FaShoppingCart className="w-2.5 h-2.5" />
-
-														{isAlreadyInCart
-															? "In Cart"
-															: "Add to Cart"}
-													</button>
 												</div>
 											</div>
 										</article>
 									);
 								})}
-							</motion.div>
-
 							</motion.div>
 
 							{/* Pagination */}
