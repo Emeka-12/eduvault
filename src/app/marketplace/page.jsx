@@ -1,60 +1,123 @@
-// Marketplace page: supports search, filters, sorting, pagination, and empty/loading/error states.
-// State is reflected in the URL for shareability.
+// Marketplace page: discovery filters are reflected in the URL for shareable searches.
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
-	FaHeart,
-	FaSearch,
-	FaFilter,
-	FaStar,
-	FaFilePdf,
-	FaFileWord,
-	FaFilePowerpoint,
-	FaRegClock,
-	FaExchangeAlt,
-	FaShoppingCart,
+  FaExchangeAlt,
+  FaFilePdf,
+  FaFilePowerpoint,
+  FaFileWord,
+  FaFilter,
+  FaHeart,
+  FaRegClock,
+  FaSearch,
+  FaShoppingCart,
+  FaStar,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 import Navbar from "@/components/Navbar";
 import SaveMaterialButton from "@/components/materials/SaveMaterialButton";
-
 import RecentlyViewedMaterials from "@/components/materials/RecentlyViewedMaterials";
-
-import { useRouter } from "next/navigation";
 import { useMarketplaceMaterials } from "@/hooks/api/useMaterials";
 import { useCart } from "@/hooks/useCart";
 import { useComparison } from "@/hooks/useComparison";
 
 export const dynamic = "force-dynamic";
 
+const ALL_SUBJECT = { id: "all", label: "All" };
+
+const DEFAULT_SUBJECTS = [
+  ALL_SUBJECT,
+  { id: "mathematics", label: "Math" },
+  { id: "science", label: "Science" },
+  { id: "law", label: "Law" },
+  { id: "technology", label: "Technology" },
+  { id: "business", label: "Business" },
+  { id: "medicine", label: "Medicine" },
+  { id: "arts", label: "Arts" },
+];
+
+const LEVEL_OPTIONS = [
+  { id: "", label: "Any level" },
+  { id: "beginner", label: "Beginner" },
+  { id: "intermediate", label: "Intermediate" },
+  { id: "advanced", label: "Advanced" },
+  { id: "all-levels", label: "All Levels" },
+];
+
+const CONTENT_TYPE_OPTIONS = [
+  { id: "", label: "Any type" },
+  { id: "pdf", label: "PDF" },
+  { id: "word", label: "Word" },
+  { id: "presentation", label: "Presentation" },
+  { id: "spreadsheet", label: "Spreadsheet" },
+  { id: "text", label: "Text" },
+  { id: "zip", label: "ZIP" },
+];
+
+const LICENSE_OPTIONS = [
+  { id: "", label: "Any license" },
+  { id: "standard", label: "Standard License", value: "Standard License (download only)" },
+  { id: "creative-commons", label: "Creative Commons", value: "Creative Commons" },
+  { id: "private-use", label: "Private Use Only", value: "Private Use Only" },
+];
+
+const RATING_OPTIONS = [
+  { id: "", label: "Any rating" },
+  { id: "4", label: "4+ stars" },
+  { id: "3", label: "3+ stars" },
+  { id: "2", label: "2+ stars" },
+  { id: "1", label: "1+ star" },
+];
+
+const NEWEST_OPTIONS = [
+  { id: "", label: "Any date" },
+  { id: "7d", label: "Last 7 days" },
+  { id: "30d", label: "Last 30 days" },
+  { id: "90d", label: "Last 90 days" },
+];
+
+const SORT_OPTIONS = [
+  { id: "newest", label: "Newest first" },
+  { id: "popular", label: "Popular" },
+  { id: "rating_desc", label: "Highest rated" },
+  { id: "price_asc", label: "Price: Low to High" },
+  { id: "price_desc", label: "Price: High to Low" },
+];
+
 function getPreviewImage(material) {
-	return (
-		material.coverImageUrl ||
-		material.thumbnailUrl ||
-		material.image ||
-		"/images/image1.jpg"
-	);
+  return material.coverImageUrl || material.thumbnailUrl || material.image || "/images/image1.jpg";
 }
 
-function getPreviewCounts(material) {
-	return {
-		outcomes: Array.isArray(material.learningOutcomes)
-			? material.learningOutcomes.length
-			: 0,
+function normalizeSubjectOptions(subjects) {
+  if (!Array.isArray(subjects) || subjects.length === 0) return DEFAULT_SUBJECTS;
 
-		sections: Array.isArray(material.tableOfContents)
-			? material.tableOfContents.length
-			: 0,
+  const seen = new Set(["all"]);
+  const normalized = subjects
+    .map((subject) => {
+      if (typeof subject === "string") {
+        return subject.toLowerCase() === "all" ? ALL_SUBJECT : { id: subject, label: subject };
+      }
 
-		notes: Array.isArray(material.sampleNotes)
-			? material.sampleNotes.length
-			: 0,
-	};
+      return {
+        id: subject?.id || subject?.label,
+        label: subject?.label || subject?.id,
+      };
+    })
+    .filter((subject) => subject.id && subject.label)
+    .filter((subject) => {
+      const key = subject.id.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+  return [ALL_SUBJECT, ...normalized];
 }
 
 function getAverageScore(material) {
@@ -121,50 +184,66 @@ export default function MarketPage() {
 				if (res.ok) {
 					const data = await res.json();
 
-					setSubjects(data.subjects || ["All"]);
-				}
-			} catch (err) {
-				console.error("Failed to load subjects:", err);
+function normalizeSortParam(value) {
+  switch (value) {
+    case "Popular":
+      return "popular";
+    case "Price: Low to High":
+      return "price_asc";
+    case "Price: High to Low":
+      return "price_desc";
+    default:
+      return SORT_OPTIONS.some((option) => option.id === value) ? value : "newest";
+  }
+}
 
-				setSubjects([
-					"All",
-					"Math",
-					"Science",
-					"Law",
-					"Technology",
-					"Business",
-					"Medicine",
-					"Arts",
-				]);
-			} finally {
-				setSubjectsLoading(false);
-			}
-		}
+function normalizeLicenseParam(value) {
+  if (!value) return "";
+  return LICENSE_OPTIONS.find((option) => option.id === value || option.value === value || option.label === value)?.id || "";
+}
 
-		loadSubjects();
-	}, []);
+function getFileIcon(value) {
+  const type = String(value || "").toLowerCase();
 
-	// Sync filters to URL
-	useEffect(() => {
-		if (!hydrated) return;
+  if (type.includes("word") || type.includes("doc")) {
+    return <FaFileWord className="text-blue-500" />;
+  }
 
-		const params = new URLSearchParams();
+  if (type.includes("ppt") || type.includes("presentation") || type.includes("powerpoint")) {
+    return <FaFilePowerpoint className="text-orange-500" />;
+  }
 
-		if (searchQuery) params.set("search", searchQuery);
+  if (type.includes("pdf")) {
+    return <FaFilePdf className="text-red-500" />;
+  }
 
-		if (activeSubject !== "All") {
-			params.set("subject", activeSubject);
-		}
+  return <FaFilePdf className="text-gray-500" />;
+}
 
-		if (sortBy !== "Popular") {
-			params.set("sortBy", sortBy);
-		}
+function getContentType(material) {
+  return material.fileType || material.contentType || material.mimeType || material.fileName || material.storageKey || "pdf";
+}
 
-		if (minPrice) params.set("minPrice", minPrice);
+function formatContentType(material) {
+  const value = String(getContentType(material)).toLowerCase();
+  if (value.includes("doc")) return "DOC";
+  if (value.includes("ppt") || value.includes("presentation")) return "PPT";
+  if (value.includes("xls") || value.includes("spreadsheet")) return "XLS";
+  if (value.includes("zip")) return "ZIP";
+  if (value.includes("text") || value.includes("txt")) return "TXT";
+  return "PDF";
+}
 
-		if (maxPrice) params.set("maxPrice", maxPrice);
+function formatPrice(price) {
+  const amount = Number(price ?? 0);
+  if (!Number.isFinite(amount) || amount === 0) return "Free";
+  return `${amount} XLM`;
+}
 
-		if (creator) params.set("creator", creator);
+function formatRating(rating) {
+  const value = Number(rating);
+  return Number.isFinite(value) && value > 0 ? value.toFixed(1) : "New";
+}
 
 		if (usageRights) params.set("usageRights", usageRights);
 
