@@ -13,6 +13,7 @@ import ThemeToggle from "./ThemeToggle";
 import { WalletStatus } from "@/providers/WalletProvider";
 import { FaShoppingCart, FaExternalLinkAlt, FaCopy, FaCheck } from "react-icons/fa";
 import { getExplorerAccountUrl } from "@/lib/config/chain";
+import NotificationCenter from "./notifications/NotificationCenter";
 
 export default function Navbar() {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -100,6 +101,7 @@ export default function Navbar() {
 
 				{/* Actions */}
 				<div className="flex items-center gap-4">
+					<NotificationCenter />
 					{/* Shopping Cart Drawer Trigger */}
 					<button
 						onClick={() => setIsCartOpen(true)}

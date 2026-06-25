@@ -429,29 +429,42 @@ export default function MaterialDetailsPage() {
 								/>
 								<div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
 									<h2 className="text-lg font-semibold text-gray-900 mb-3">
-										Preview Fields
+										Resource Details
 									</h2>
-									<p className="text-sm text-gray-600 leading-relaxed mb-4">
-										Marketplace listings can expose creator-provided cover images, short
-										summaries, learning outcomes, table of contents entries, and sample
-										notes. Missing values should stay friendly and non-blocking.
-									</p>
-									<ul role="list" className="space-y-3 text-sm text-gray-700">
-										<li role="listitem" className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-											<strong className="text-gray-900">coverImageUrl</strong> or
-											thumbnail fallback for the hero image.
-										</li>
-										<li role="listitem" className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-											<strong className="text-gray-900">shortSummary</strong> for the
-											listing teaser.
-										</li>
-										<li role="listitem" className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-											<strong className="text-gray-900">learningOutcomes</strong>,
-											<strong className="text-gray-900"> tableOfContents</strong>, and
-											<strong className="text-gray-900"> sampleNotes</strong> as arrays
-											or newline/comma-separated input from the upload form.
-										</li>
-									</ul>
+									<dl className="space-y-3 text-sm">
+										{material.category && (
+											<div className="flex justify-between items-center">
+												<dt className="text-gray-500 font-medium">Category</dt>
+												<dd className="text-gray-800 font-semibold capitalize">{material.category}</dd>
+											</div>
+										)}
+										{material.subject && (
+											<div className="flex justify-between items-center">
+												<dt className="text-gray-500 font-medium">Subject</dt>
+												<dd className="text-gray-800 font-semibold">{material.subject}</dd>
+											</div>
+										)}
+										{material.level && (
+											<div className="flex justify-between items-center">
+												<dt className="text-gray-500 font-medium">Level</dt>
+												<dd className="text-gray-800 font-semibold capitalize">{material.level}</dd>
+											</div>
+										)}
+										<div className="flex justify-between items-center">
+											<dt className="text-gray-500 font-medium">File Type</dt>
+											<dd className="text-gray-800 font-semibold uppercase">{material.fileType || "PDF"}</dd>
+										</div>
+										{material.pages && (
+											<div className="flex justify-between items-center">
+												<dt className="text-gray-500 font-medium">Pages</dt>
+												<dd className="text-gray-800 font-semibold">{material.pages}</dd>
+											</div>
+										)}
+										<div className="flex justify-between items-center">
+											<dt className="text-gray-500 font-medium">Visibility</dt>
+											<dd className="text-gray-800 font-semibold capitalize">{material.visibility || "Public"}</dd>
+										</div>
+									</dl>
 								</div>
 							</div>
 

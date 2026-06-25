@@ -58,13 +58,11 @@ export async function POST(req) {
       .collection('purchases')
       .findOne({ buyerAddress, materialId });
     if (existing) {
-      // Ensure entitlement cache is populated on re-purchase attempt
-      await createEntitlement(materialId, buyerAddress, {
-        purchaseId: String(existing._id),
-        transactionHash: existing.transactionHash,
-      });
-
       if (isCompletedPurchaseStatus(existing.status)) {
+        await createEntitlement(materialId, buyerAddress, {
+          purchaseId: String(existing._id),
+          transactionHash: existing.transactionHash,
+        });
         const access = await getMaterialAccessStatus(db, materialId, buyerAddress);
         return NextResponse.json(
           { message: 'Already purchased', purchase: existing, access, transactionHash: existing.transactionHash },
@@ -126,12 +124,12 @@ export async function POST(req) {
     const result = await db.collection('purchases').insertOne(purchaseRecord);
     const access = await getMaterialAccessStatus(db, materialId, buyerAddress);
 
-    // Create entitlement record immediately so access is available without
-    // waiting for the off-chain indexer to process the on-chain event.
-    await createEntitlement(materialId, buyerAddress, {
-      purchaseId: String(result.insertedId),
-      transactionHash: transactionHash || null,
-    });
+    if (paymentCompleted) {
+      await createEntitlement(materialId, buyerAddress, {
+        purchaseId: String(result.insertedId),
+        transactionHash: transactionHash || null,
+      });
+    }
 
     return NextResponse.json(
       { success: paymentCompleted, purchaseId: result.insertedId, purchase: { ...purchaseRecord, _id: result.insertedId }, access },
